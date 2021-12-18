@@ -1,14 +1,22 @@
+//*** GLOBAL STUFF ***/
 // Get references to the #generate element
 var generateBtn = document.querySelector("#generate");
 
+// create character set arrays for use in multiple functions
+var specialCharactersAry = ["~","!","@","#","$","%","^","&","(",")","_","-","+","=","{","[","}","]","|","<",">","?","/"];
+var pwNumbersAry = ["0","1","2","3","4","5","6","7","8","9"];
+var alphaLowerAry = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+var alphaUpperAry = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+
+//*** FUNCTIONS */
 // Write password to the #password input
 function passwordCriteria() {
-  //clear pw box
+  //clear pw box, this helps if the user already generated a password and the new criteria fails validation
   var passwordText = document.querySelector("#password");
   passwordText.value = "";
   passwordText.placeholder="Your Secure Password";
 
-  //set a flag to check data validation
+  //create a flag to check data validation
   var validCriteriaBln = true;
 
   //*** prompt for criteria ***//
@@ -28,11 +36,15 @@ function passwordCriteria() {
   var pwUpperCaseBln = confirm("Click OK to confirm that you would like your password to contain upper case letters.");
 
   //validate the input
+  // check length is within range
   if (pwLength < 8 || pwLength > 128) {validCriteriaBln = false};
-  console.log(validCriteriaBln);
+
+  //check that at least one character set is selected
   if (pwSpecialCharactersBln == false && pwNumbersBln == false && pwLowerCaseBln == false && pwUpperCaseBln == false) 
     {validCriteriaBln = false};
   console.log(validCriteriaBln);    
+
+  //Check if that we are valid and alert the user if we are invalid
   if (validCriteriaBln == false){
     //invalid criteria
     console.log ("gotta return");
@@ -41,28 +53,84 @@ function passwordCriteria() {
   }; 
 
   // We have good criteria, good to generate the password
-  console.log("good to go");
+  console.log("valid input; we are good to go");
 
   // some debugging code to write the input to the console
   // varToConsole(Object.keys({pwLength})[0], pwLength);
   // varToConsole(Object.keys({pwSpecialCharactersBln})[0], pwSpecialCharactersBln);
-  // varToConsole(Object.keys({pwNumbersBln})[0], pwNumbersBln);
-  // varToConsole(Object.keys({pwLowerCaseBln})[0], pwLowerCaseBln);
-  // varToConsole(Object.keys({pwUpperCaseBln})[0], pwUpperCaseBln);
+
+  // Create and build the character set which will be used to build the pw
+  var charSetAry = [];
+  // if the user asked for set to be included, add it to our character set
+  if (pwSpecialCharactersBln) {charSetAry = charSetAry.concat(specialCharactersAry)};
+  if (pwNumbersBln) {charSetAry = charSetAry.concat(pwNumbersAry)};
+  if (pwLowerCaseBln) {charSetAry = charSetAry.concat(alphaLowerAry)};
+  if (pwUpperCaseBln) {charSetAry = charSetAry.concat(alphaUpperAry)};
   
-  var password = generatePassword();
-  
+  // Call the function to build the password
+  var password = generatePassword(pwLength, charSetAry, pwSpecialCharactersBln, pwNumbersBln, pwLowerCaseBln, pwUpperCaseBln);
+ 
+  //display the resulting password
   passwordText.value = password;
 
 }
 
+// function to generate the password
+var generatePassword = function (myLength, mycharSetAry, mySpecialCharactersBln, myNumbersBln, myLowerCaseBln, myUpperCaseBln) {
+  console.log("ready to generatePassword!")
+
+  const arr = [mySpecialCharactersBln, myNumbersBln, myLowerCaseBln, myUpperCaseBln];
+  const myCount = arr.filter(Boolean).length;   
+
+  var myPassword = "";
+  //get length of char set to set max random number
+  var setLength = mycharSetAry.length;
+  var myRandomNum = 0;
+  myLength = myLength - myCount;
+  
+  //***create a pw less reserve digits to ensure each set is included */ 
+  //create a loop for lenth
+  for(let i=0; i<myLength; i++ ){
+    // Returns a random integer from 0 to setLength:
+    myRandomNum = Math.floor(Math.random() * setLength);
+    //each interval add a new char to the password
+    myPassword = myPassword + mycharSetAry[myRandomNum];  
+  };
+
+  // Ensure that each set is included at least once
+  if (mySpecialCharactersBln){
+    setLength = specialCharactersAry.length;
+    myRandomNum = Math.floor(Math.random() * setLength);
+    myPassword = myPassword + specialCharactersAry[myRandomNum]
+  }
+  
+  if (myNumbersBln){
+    setLength = pwNumbersAry.length;
+    myRandomNum = Math.floor(Math.random() * setLength);
+    myPassword = myPassword + pwNumbersAry[myRandomNum]
+  }
+
+  if (myLowerCaseBln){
+    setLength = alphaLowerAry.length;
+    myRandomNum = Math.floor(Math.random() * setLength);
+    myPassword = myPassword + alphaLowerAry[myRandomNum]
+  }
+
+  if (myUpperCaseBln){
+    setLength = alphaUpperAry.length;
+    myRandomNum = Math.floor(Math.random() * setLength);
+    myPassword = myPassword + alphaUpperAry[myRandomNum]
+  }
+
+  //return pw
+  return myPassword;
+};
+
+// function for debugging
 var varToConsole = function (myVar, myVal){
   console.log (myVar +": " + myVal);
-}
-
-var generatePassword = function () {
-  console.log("ready to generatePassword!")
-  return "test-pw";
 };
-// Add event listener to generate button
+
+//*** LISTENERS ***/ 
+// Add event listener to generate button; this kicks off all the magic, starting with getting password criteria
 generateBtn.addEventListener("click", passwordCriteria);
