@@ -28,4 +28,4 @@ GIVEN I need a new, secure password
 >>THEN the password is either displayed in an alert or written to the page
 
 ## Mock-Up
-![mockup image](main/assets/images/03-javascript-homework-demo.png)
+![mockup image](assets/images/03-javascript-homework-demo.png)
